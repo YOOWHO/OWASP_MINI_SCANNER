@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP Mini-Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="shell">
+
+        <!-- ── Left Panel ── -->
+        <aside class="left-panel">
+            <div class="logo-block">
+                <svg class="hex-logo" width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <polygon points="20,2 36,11 36,29 20,38 4,29 4,11" stroke="var(--green)" stroke-width="1.5" fill="none"/>
+                    <polygon points="20,9 30,14.5 30,25.5 20,31 10,25.5 10,14.5" stroke="var(--green)" stroke-width="1" fill="rgba(0,255,136,0.06)"/>
+                    <circle cx="20" cy="20" r="3.5" fill="var(--green)"/>
+                </svg>
+                <div>
+                    <div class="logo-title">OWASP</div>
+                    <div class="logo-sub">MINI-SCANNER v0.3</div>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <div class="nav-section-label">// SYSTEM</div>
+                <a href="#" class="nav-link active" data-tab="scan"><span class="nav-arr">▶</span> SCAN TARGET</a>
+                <a href="#" class="nav-link" data-tab="history"><span class="nav-arr">▷</span> HISTORY</a>
+                <a href="#" class="nav-link" data-tab="reports"><span class="nav-arr">▷</span> REPORTS</a>
+            </nav>
+
+            <div class="status-block">
+                <div class="nav-section-label">// STATUS</div>
+                <div class="status-row"><span class="dot green"></span><span id="engine-status">ENGINE IDLE</span></div>
+                <div class="status-row"><span class="dot green"></span><span>12 CHECKS LOADED</span></div>
+                <div class="status-row"><span class="dot green"></span><span>PLUGINS ACTIVE</span></div>
+            </div>
+
+            <div class="legend-block">
+                <div class="nav-section-label">// SEVERITY</div>
+                <div class="legend-row"><span class="badge critical">CRITICAL</span> Auth bypass, RCE</div>
+                <div class="legend-row"><span class="badge high">HIGH</span> SQLi, XSS, CORS</div>
+                <div class="legend-row"><span class="badge medium">MEDIUM</span> Headers, CSRF</div>
+                <div class="legend-row"><span class="badge info">INFO</span> Disclosure</div>
+            </div>
+        </aside>
+
+        <!-- ── Main Panel ── -->
+        <main class="main-panel">
+            <div class="terminal-bar">
+                <div class="term-dots">
+                    <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+                </div>
+                <div class="term-title" id="term-title">scan-target — zsh — 120×40</div>
+                <div></div>
+            </div>
+
+            <!-- ════ TAB: SCAN ════ -->
+            <div id="tab-scan" class="tab-content active">
+                <section class="scan-block">
+                    <div class="prompt-line">
+                        <span class="prompt">root@scanner:~$&nbsp;</span>
+                        <input type="url" id="target-url" class="url-input" placeholder="https://target.com" autocomplete="off" spellcheck="false">
+                        <button id="scan-btn" class="scan-btn">
+                            <span class="btn-label">EXECUTE</span>
+                            <span class="btn-spinner hidden"></span>
+                        </button>
+                    </div>
+                    <div id="scan-log" class="scan-log hidden">
+                        <span class="log-tag">[INFO]</span>&nbsp;<span id="log-text">Initializing...</span><span class="blink">█</span>
+                    </div>
+                </section>
+
+                <section id="results" class="results hidden">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-val" id="stat-status">—</div>
+                            <div class="stat-lbl">HTTP STATUS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-val accent-red" id="stat-findings">—</div>
+                            <div class="stat-lbl">VULNS FOUND</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-val accent-orange" id="stat-critical">—</div>
+                            <div class="stat-lbl">CRITICAL / HIGH</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-val accent-blue" id="stat-forms">—</div>
+                            <div class="stat-lbl">FORMS</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <span class="filter-label">FILTER:</span>
+                            <button class="filter-btn active" data-filter="all">ALL</button>
+                            <button class="filter-btn" data-filter="critical">CRITICAL</button>
+                            <button class="filter-btn" data-filter="high">HIGH</button>
+                            <button class="filter-btn" data-filter="medium">MEDIUM</button>
+                            <button class="filter-btn" data-filter="info">INFO</button>
+                        </div>
+                        <div class="export-group">
+                            <button id="export-json" class="export-btn" disabled>⬇ JSON</button>
+                        </div>
+                    </div>
+
+                    <div class="results-grid">
+                        <div class="findings-panel">
+                            <div class="panel-header">
+                                <span class="ph-icon">⚡</span> VULNERABILITY DETAILS
+                                <span id="vuln-count" class="vuln-count"></span>
+                            </div>
+                            <div id="findings-list"></div>
+                        </div>
+                        <div class="forms-panel">
+                            <div class="panel-header"><span class="ph-icon">◈</span> EXTRACTED FORMS</div>
+                            <div id="forms-list"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ════ TAB: HISTORY ════ -->
+            <div id="tab-history" class="tab-content hidden">
+                <div class="tab-inner">
+                    <div class="tab-topbar">
+                        <div class="tab-heading">
+                            <span class="ph-icon">🕰</span> SCAN HISTORY
+                            <span id="history-count" class="vuln-count" style="margin-left:0.5rem"></span>
+                        </div>
+                        <button id="clear-history-btn" class="export-btn danger-btn">✕ CLEAR ALL</button>
+                    </div>
+                    <div id="history-empty" class="empty-state" style="margin-top:2rem">No scans recorded yet. Run a scan to see history here.</div>
+                    <div id="history-list" class="history-list"></div>
+                </div>
+            </div>
+
+            <!-- ════ TAB: REPORTS ════ -->
+            <div id="tab-reports" class="tab-content hidden">
+                <div class="tab-inner">
+                    <div class="tab-topbar">
+                        <div class="tab-heading"><span class="ph-icon">📄</span> REPORTS</div>
+                    </div>
+
+                    <!-- No scan state -->
+                    <div id="report-no-scan" class="empty-state" style="margin-top:2rem">
+                        No scan loaded. Run a scan first, then come here to generate a report.
+                    </div>
+
+                    <!-- Report ready state -->
+                    <div id="report-ready" class="hidden">
+                        <div class="report-meta-card">
+                            <div class="rmc-row">
+                                <span class="rmc-label">TARGET</span>
+                                <span id="rpt-url" class="rmc-val mono"></span>
+                            </div>
+                            <div class="rmc-row">
+                                <span class="rmc-label">SCANNED AT</span>
+                                <span id="rpt-time" class="rmc-val"></span>
+                            </div>
+                            <div class="rmc-row">
+                                <span class="rmc-label">FINDINGS</span>
+                                <span id="rpt-count" class="rmc-val accent-red"></span>
+                            </div>
+                            <div class="rmc-row">
+                                <span class="rmc-label">HTTP STATUS</span>
+                                <span id="rpt-status" class="rmc-val"></span>
+                            </div>
+                        </div>
+
+                        <div class="report-actions">
+                            <button id="dl-html-btn" class="report-action-btn primary-btn">
+                                <span>⬇</span> DOWNLOAD HTML REPORT
+                            </button>
+                            <button id="dl-json-btn2" class="report-action-btn">
+                                <span>⬇</span> DOWNLOAD JSON REPORT
+                            </button>
+                        </div>
+
+                        <div class="report-preview-label">// REPORT PREVIEW</div>
+                        <div id="report-preview" class="report-preview"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

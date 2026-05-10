@@ -1,0 +1,51 @@
+{
+  "url": "http://example.com",
+  "status_code": 200,
+  "findings": [
+    {
+      "type": "missing_header",
+      "header": "Content-Security-Policy",
+      "msg": "CSP is missing"
+    },
+    {
+      "type": "missing_header",
+      "header": "X-Frame-Options",
+      "msg": "X-Frame-Options is missing"
+    },
+    {
+      "type": "missing_header",
+      "header": "Strict-Transport-Security",
+      "msg": "Strict-Transport-Security is missing"
+    },
+    {
+      "type": "missing_header",
+      "header": "X-Content-Type-Options",
+      "msg": "X-Content-Type-Options is missing"
+    },
+    {
+      "type": "info_disclosure",
+      "plugin": "InformationDisclosurePlugin",
+      "header": "server",
+      "msg": "Information disclosure via 'server' header: cloudflare",
+      "details": {
+        "value": "cloudflare"
+      }
+    }
+  ],
+  "forms": [],
+  "headers": {
+    "Date": "Mon, 16 Mar 2026 05:47:21 GMT",
+    "Content-Type": "text/html",
+    "Transfer-Encoding": "chunked",
+    "Connection": "keep-alive",
+    "Content-Encoding": "gzip",
+    "Last-Modified": "Sun, 15 Mar 2026 22:45:47 GMT",
+    "Allow": "GET, HEAD",
+    "Age": "3022",
+    "cf-cache-status": "HIT",
+    "Vary": "Accept-Encoding",
+    "Server": "cloudflare",
+    "CF-RAY": "9dd17670ca97963e-DEL"
+  },
+  "error": null
+}
